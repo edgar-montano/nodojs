@@ -44,20 +44,20 @@ term.restoreCursor() ;
 //filter list for any EOF characters.
 let filteredList = list.split("\n").filter(item => item.length > 1 );
 function menu (){
-
-    term.singleColumnMenu(filteredList, (err,response) => {
+    term.clear();
+    term.color256(program.headerColor||Math.random() * (255)+1,header)
     term.on( 'key' , function( name , matches , data ) {
 	    if ( name === 'CTRL_C' ) { process.exit(); }
-        });
-
-    let index = response.selectedIndex;
-
-    filteredList[index]=filteredList[index].replace("[]","[x]");
-    term.saveCursor();
-    term.moveTo(1,1).eraseLine();
-    term.restoreCursor();
-    menu();
-});
+    });
+    term.singleColumnMenu(filteredList, (err,response) => {
+        let index = response.selectedIndex;
+        if(filteredList[index].includes("[]")) filteredList[index]=filteredList[index].replace("[]","[x]");
+        else filteredList[index]=filteredList[index].replace("[x]","[]");
+        term.saveCursor();
+        term.moveTo(1,1).eraseLine();
+        term.restoreCursor();
+        menu();
+    });
 }
 
 menu();
