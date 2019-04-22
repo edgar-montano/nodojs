@@ -24,7 +24,6 @@ if(!filePath){
     term.bold.yellow("WARN: ").defaultColor("Please specify a file using the --new-list or the --file flag\n");
     return -1;
 }
-
 let list = "";
 try{
     list = fs.readFileSync(filePath, 'utf8');
@@ -41,8 +40,24 @@ term(`Operating on ${filePath}`) ;
 term.white.bgBlack() ;
 term.restoreCursor() ;
 
-list = list.split("\n");
-term.singleColumnMenu(list, (err,response) => {
-    term.moveTo.bgWhite.black(1,1).eraseLine();
-    process.exit();
+
+//filter list for any EOF characters.
+let filteredList = list.split("\n").filter(item => item.length > 1 );
+function menu (){
+
+    term.singleColumnMenu(filteredList, (err,response) => {
+    term.on( 'key' , function( name , matches , data ) {
+	    if ( name === 'CTRL_C' ) { process.exit(); }
+        });
+
+    let index = response.selectedIndex;
+
+    filteredList[index]=filteredList[index].replace("[]","[x]");
+    term.saveCursor();
+    term.moveTo(1,1).eraseLine();
+    term.restoreCursor();
+    menu();
 });
+}
+
+menu();
