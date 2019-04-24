@@ -26,6 +26,7 @@
   "homepage": "https://github.com/edgar-montano/nodojs#readme",
   "dependencies": {
     "commander": "^2.20.0",
+    "readline-sync": "^1.4.9",
     "terminal-kit": "^1.28.0"
   }
 }

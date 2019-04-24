@@ -1,7 +1,7 @@
 const program=  require('commander');
 const term =    require( 'terminal-kit' ).terminal ;
 const fs=       require('fs');
-
+const readlineSync=require('readline-sync');
 
 program
     .version('0.0.1')
@@ -43,12 +43,35 @@ term.restoreCursor() ;
 
 //filter list for any EOF characters.
 let filteredList = list.split("\n").filter(item => item.length > 1 );
-function menu (){
+function menu(){
+    term.clear();
+    term.color256(program.headerColor||Math.random() * (255)+1,header)
+
+    /*
     term.clear();
     term.color256(program.headerColor||Math.random() * (255)+1,header)
     term.on( 'key' , function( name , matches , data ) {
 	    if ( name === 'CTRL_C' ) { process.exit(); }
     });
+    term.on( 'key' , function( name , matches , data ) {
+	    if ( name === 'h' ) { term.clear().green('for help options\n'); }
+    });
+
+    term.on( 'key' , function( name , matches , data ) {
+	    if ( name === 'i' ) {
+            term.grabInput(false);
+            term.clear().green('Insert mode activated\n');
+            let newTodo = readlineSync.question('Add a new todo item: ');
+            if(newTodo!='') filteredList.push("[] "+newTodo);
+            term.grabInput(true);
+
+        }
+    });
+
+    term.on('key', function(name, matches,data) {
+        if(name==='ESCAPE') menu();
+    });
+    */
     term.singleColumnMenu(filteredList, (err,response) => {
         let index = response.selectedIndex;
         if(filteredList[index].includes("[]")) filteredList[index]=filteredList[index].replace("[]","[x]");
@@ -59,5 +82,36 @@ function menu (){
         menu();
     });
 }
+function choose(){
+    term.clear();
+    term.color256(program.headerColor||Math.random() * (255)+1,header)
+    term.grabInput();
+    term.on( 'key' , function( name , matches , data ) {
+	    if ( name === 'CTRL_C' ) { process.exit(); }
+    });
+    term.on( 'key' , function( name , matches , data ) {
+	    if ( name === 'h' ) { term.clear().green('for help options\n'); }
+    });
 
-menu();
+    term.on( 'key' , function( name , matches , data ) {
+	    if ( name === 'i' ) {
+            term.grabInput(false);
+            term.clear().green('Insert mode activated\n');
+            let newTodo = readlineSync.question('Add a new todo item: ');
+            if(newTodo!='') filteredList.push("[] "+newTodo);
+            term.grabInput(true);
+
+        }
+    });
+
+    term.on('key', function(name, matches,data) {
+        if(name==='ESCAPE') menu();
+    });
+    term.on('key', function(name,matches,data){
+        if(name==='m') menu();
+    })
+
+}
+
+choose();
+//menu();
