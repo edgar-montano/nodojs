@@ -79,7 +79,7 @@ function choose() {
                     return -1;
                 }
             });
-            term.bold.green("File successfully saved\n");
+            term.clear().bold.green("File successfully saved\n");
             process.exit();
         }
     });
