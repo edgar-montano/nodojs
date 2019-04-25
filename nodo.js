@@ -49,32 +49,6 @@ function menu() {
     term.clear();
     term.color256(program.headerColor || Math.random() * (255) + 1, header)
     term.green('Commands available: (m)enu, (i)nsert mode, (h)elp, or CTRL_C to escape\n')
-
-    /*
-    term.clear();
-    term.color256(program.headerColor||Math.random() * (255)+1,header)
-    term.on( 'key' , function( name , matches , data ) {
-	    if ( name === 'CTRL_C' ) { process.exit(); }
-    });
-    term.on( 'key' , function( name , matches , data ) {
-	    if ( name === 'h' ) { term.clear().green('for help options\n'); }
-    });
-
-    term.on( 'key' , function( name , matches , data ) {
-	    if ( name === 'i' ) {
-            term.grabInput(false);
-            term.clear().green('Insert mode activated\n');
-            let newTodo = readlineSync.question('Add a new todo item: ');
-            if(newTodo!='') filteredList.push("[] "+newTodo);
-            term.grabInput(true);
-
-        }
-    });
-
-    term.on('key', function(name, matches,data) {
-        if(name==='ESCAPE') menu();
-    });
-    */
     term.singleColumnMenu(filteredList, (err, response) => {
         let index = response.selectedIndex;
         if (filteredList[index].includes("[]")) filteredList[index] = filteredList[index].replace("[]", "[x]");
@@ -93,13 +67,13 @@ function choose() {
     term.grabInput();
     term.on('key', function (name, matches, data) {
         if (name === 'CTRL_C') {
-            fs.writeFile("/tmp/test", filteredList, function (err) {
+            let formatedString = filteredList.join('\n');
+            fs.writeFileSync(filePath, formatedString, function (err) {
                 if (err) {
-                    return console.log(err);
+                    return term.clear().red(err);
                 }
-
-                console.log("The file was saved!");
             });
+            term.green("File successfully saved\n");
             process.exit();
         }
     });
@@ -125,14 +99,7 @@ function choose() {
     term.on('key', function (name, matches, data) {
         if (name === 'm') menu();
     })
-    // term.on('key', function(name,matches,data){
-    //     if(name==='s'){
-    //         term.clear().green('Save has been successful. Press escape to return\n');
-    //     }
-    // });
-
     menu();
 }
 
 choose();
-//menu();
