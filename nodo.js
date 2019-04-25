@@ -27,9 +27,6 @@ if (!filePath) {
 let list = "";
 try {
     list = fs.readFileSync(filePath, 'utf8');
-
-    //console.log(list)
-
 } catch (e) {
     term.bold.red("ERR: ").defaultColor('Specified file not found');
 }
@@ -53,10 +50,9 @@ function menu() {
         let index = response.selectedIndex;
         if (filteredList[index].includes("[]")) filteredList[index] = filteredList[index].replace("[]", "[x]");
         else filteredList[index] = filteredList[index].replace("[x]", "[]");
-        term.saveCursor();
-        term.moveTo(1, 1).eraseLine();
-        term.restoreCursor();
         menu();
+
+
     });
 }
 
@@ -70,16 +66,22 @@ function choose() {
             let formatedString = filteredList.join('\n');
             fs.writeFileSync(filePath, formatedString, function (err) {
                 if (err) {
-                    return term.clear().red(err);
+                    term.clear().bold().red(err);
+                    return -1;
                 }
             });
-            term.green("File successfully saved\n");
+            term.bold.green("File successfully saved\n");
             process.exit();
         }
     });
     term.on('key', function (name, matches, data) {
         if (name === 'h') {
-            term.clear().green('for help options\n');
+            term.clear().green(`Note press m or escape for a refresh\n
+            Available options are: \n
+            (m)enu - used for refreshing menu\n
+            (i)nsert mode - escapes grab input from terminal kit and allows you to add items\n
+            (h)elp menu - displays this menu :) \n
+            CTRL_C - escapes file and automatically saves list`);
         }
     });
     term.on('key', function (name, matches, data) {
@@ -92,6 +94,19 @@ function choose() {
 
         }
     });
+
+    term.on('key', function (name, matches, data) {
+        if (name === 'd') {
+            term.grabInput(false);
+            term.clear().yellow("Select an element to delete starting with index 0\n");
+            filteredList.forEach((item, index) => term(`${index} ${item} \n`));
+            let selectToDelete = readlineSync.question('Select an item to delete: ');
+
+            filteredList.splice(selectToDelete, 1);
+            term.grabInput(true);
+        }
+    });
+
 
     term.on('key', function (name, matches, data) {
         if (name === 'ESCAPE') menu();
