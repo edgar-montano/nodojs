@@ -32,15 +32,24 @@ try {
 }
 
 //Display status bar informing us of what todo list we are operating on
-term.saveCursor();
-term.moveTo.bgWhite.black(1, 1).eraseLine();
-term(`Operating on ${filePath}`);
-term.white.bgBlack();
-term.restoreCursor();
+// term.saveCursor();
+// term.moveTo.bgWhite.black(1, 1).eraseLine();
+// term(`Operating on ${filePath}`);
+// term.white.bgBlack();
+// term.restoreCursor();
 
 
 //filter list for any EOF characters.
 let filteredList = list.split("\n").filter(item => item.length > 1);
+
+
+if (program.newList) {
+    term.grabInput(false);
+    term.clear().green('Insert mode activated\n');
+    let newTodo = readlineSync.question('Add a new todo item: ');
+    if (newTodo != '') filteredList.push("[] " + newTodo);
+    term.grabInput(true);
+}
 
 function menu() {
     term.clear();

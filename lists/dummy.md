@@ -1,3 +1,3 @@
-[] Implement delete element
+[x] Implement delete element
     [] Implement tabbed elements
-[] Test redundancy
+[] Implement new list creation
