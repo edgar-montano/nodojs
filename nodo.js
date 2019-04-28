@@ -44,9 +44,7 @@ if (program.newList) {
 }
 
 function menu() {
-    term.clear();
-    term.color256(program.headerColor || Math.random() * (255) + 1, header)
-    term.green('Commands available: (m)enu, (i)nsert mode, (d)elete mode, (h)elp, or CTRL_C to escape\n')
+    header();
     term.singleColumnMenu(filteredList, (err, response) => {
         let index = response.selectedIndex;
         if (filteredList[index].includes("[]")) filteredList[index] = filteredList[index].replace("[]", "[x]");
@@ -79,12 +77,11 @@ function append() {
 function header() {
     term.clear();
     term.color256(program.headerColor || Math.random() * (255) + 1, header);
+    term.green('Commands available: (m)enu, (a)ppend below, (i)nsert mode, (d)elete mode, (h)elp, or CTRL_C to escape\n')
 }
 
 function choose() {
-    term.clear();
-    term.color256(program.headerColor || Math.random() * (255) + 1, header)
-    term.green('Commands available: (m)enu, (i)nsert mode, (d)elete mode, (h)elp, or CTRL_C to escape')
+    header();
     term.grabInput();
     term.on('key', function (name, matches, data) {
         if (name === 'CTRL_C') {
