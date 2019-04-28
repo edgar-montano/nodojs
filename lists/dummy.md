@@ -1,4 +1,3 @@
-[] Implement delete element
-    [] Implement tabbed elements
-[] Implement new list creation
-[] Add a new item
+[x] Implement delete element
+[x] Implement append mode
+[] Refactor code base

@@ -31,14 +31,6 @@ try {
     term.bold.red("ERR: ").defaultColor('Specified file not found');
 }
 
-//Display status bar informing us of what todo list we are operating on
-// term.saveCursor();
-// term.moveTo.bgWhite.black(1, 1).eraseLine();
-// term(`Operating on ${filePath}`);
-// term.white.bgBlack();
-// term.restoreCursor();
-
-
 //filter list for any EOF characters.
 let filteredList = list.split("\n").filter(item => item.length > 1);
 
@@ -60,9 +52,33 @@ function menu() {
         if (filteredList[index].includes("[]")) filteredList[index] = filteredList[index].replace("[]", "[x]");
         else filteredList[index] = filteredList[index].replace("[x]", "[]");
         menu();
-
-
     });
+}
+
+
+function append() {
+
+    header();
+
+    term.grabInput(false);
+    let newTodo = readlineSync.question('Append a new todo item: ');
+    filteredList.forEach((item, index) => term(`${index} ${item} \n`));
+    let appendIndex = Number(readlineSync.question(`Select where you want your item appended below (0-${filteredList.length-1}): `));
+    if (!isNaN(appendIndex) && 0 <= appendIndex < filteredList.length - 1) {
+        newTodo = "    []" + newTodo;
+        term(`${appendIndex+1} : appendexIndex\n`);
+        filteredList.splice(appendIndex + 1, 0, newTodo);
+        process.exit();
+    }
+    term.grabInput(true);
+    menu();
+
+}
+
+
+function header() {
+    term.clear();
+    term.color256(program.headerColor || Math.random() * (255) + 1, header);
 }
 
 function choose() {
@@ -110,13 +126,14 @@ function choose() {
             term.clear().yellow("Select an element to delete starting with index 0\n");
             filteredList.forEach((item, index) => term(`${index} ${item} \n`));
             let selectToDelete = readlineSync.question('Select an item to delete: ');
-
             filteredList.splice(selectToDelete, 1);
             term.grabInput(true);
         }
     });
 
-
+    term.on('key', function (name, matches, data) {
+        if (name === 'a') append();
+    })
     term.on('key', function (name, matches, data) {
         if (name === 'ESCAPE') menu();
     });
