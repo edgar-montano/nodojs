@@ -72,7 +72,7 @@ function append() {
     )
   );
   if (!isNaN(appendIndex) && 0 <= appendIndex < filteredList.length - 1) {
-    newTodo = "    []" + newTodo;
+    newTodo = "    [] " + newTodo;
     filteredList.splice(appendIndex + 1, 0, newTodo);
   }
   term.grabInput(true);
