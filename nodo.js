@@ -7,10 +7,12 @@ program
   .version("0.0.1")
   .option("-f, --file <file>", "path to todo list file")
   .option("-h, --header <header>", "path to custom header")
+  .option("-m, --no-menu", "hides the help menu under todo")
   .option(
     "-c, --header-color <integer>",
     "pass an integer between 1,256 for header color "
   )
+  .option("-e, --experimental", "enables experimental mode")
   .option("-n, --new-list <file>", "make a new todo list file")
   .option("-a, --add [items...]", "add a new item to list")
   .parse(process.argv);
@@ -18,6 +20,8 @@ program
 // determines header and header color from params or pass default value
 const header = fs.readFileSync(program.header || "headers/todo_header", "utf8");
 term.color256(program.headerColor || Math.random() * 255 + 1, header);
+
+let hideHelp = false;
 
 // ensure that a file is specified
 const filePath = program.file || program.args[0] || program.newList;
@@ -59,6 +63,26 @@ function menu() {
   });
 }
 
+function menuStable() {
+  displayHeader();
+  term.singleColumnMenu(filteredList, (err, response) => {
+    let index = response.selectedIndex;
+    if (filteredList[index].includes("[]"))
+      filteredList[index] = filteredList[index].replace("[]", "[x]");
+    else filteredList[index] = filteredList[index].replace("[x]", "[]");
+    chooseStable();
+  });
+}
+
+function deleteItem() {
+  displayHeader();
+  term.singleColumnMenu(filteredList, (err, response) => {
+    let index = response.selectedIndex;
+    filteredList.splice(index, 1);
+    chooseStable();
+  });
+}
+
 function append() {
   displayHeader();
 
@@ -83,8 +107,38 @@ function displayHeader() {
   term.clear();
   term.color256(program.headerColor || Math.random() * 255 + 1, header);
   term.green(
-    "Commands available: (m)enu, (a)ppend below, (i)nsert mode, (d)elete mode, (h)elp, or CTRL_C to escape\n"
+    "\nCommands available: (m)enu, (a)ppend below, (i)nsert mode, (d)elete mode, (h)elp, or CTRL_C to escape\n"
   );
+}
+
+function chooseStable(msg = "") {
+  //while (true) {
+  displayHeader();
+  term(`${msg}\n`);
+  filteredList.forEach(item => term(`${item}\n`));
+  term.grabInput(false);
+  let userInput = readlineSync.question("\nPlease enter a command > ");
+  term.grabInput(true);
+  switch (userInput) {
+    case "":
+    case "s":
+    case "m":
+      term("entering menu");
+      menuStable();
+      break;
+    case "a":
+    //break;
+    case "d":
+      deleteItem();
+      break;
+    //break;
+    case "h":
+    //break;
+    default:
+      chooseStable(`Command "${userInput}" not found\n`);
+      break;
+  }
+  //}
 }
 
 function choose() {
@@ -151,4 +205,5 @@ function choose() {
   menu();
 }
 
-choose();
+// choose();
+chooseStable();
