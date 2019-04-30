@@ -134,7 +134,6 @@ const displayHeader = (helpMenu = true) => {
 }
 
 function choose(msg = "") {
-  //while (true) {
   displayHeader(hideHelp);
   term(`${msg}\n`);
   filteredList.forEach(item => term(`${item}\n`));
@@ -158,73 +157,6 @@ function choose(msg = "") {
       choose(`Command "${userInput}" not found`)
 
   }
-  //displayMenu(userInput, hideHelp);
-
 }
 
-// function choose() {
-//   displayHeader();
-//   term.grabInput();
-//   term.on("key", function (name, matches, data) {
-//     if (name === "CTRL_C") {
-//       let formatedString = filteredList.join("\n");
-//       fs.writeFileSync(filePath, formatedString, function (err) {
-//         if (err) {
-//           term
-//             .clear()
-//             .bold()
-//             .red(err);
-//           return -1;
-//         }
-//       });
-//       term.clear().bold.green("File successfully saved\n");
-//       process.exit();
-//     }
-//   });
-//   term.on("key", function (name, matches, data) {
-//     if (name === "h") {
-//       term.clear().green(`Note press m or escape for a refresh\n
-//             Available options are: \n
-//             (m)enu - used for refreshing menu\n
-//             (i)nsert mode - escapes grab input from terminal kit and allows you to add items\n
-//             (h)elp menu - displays this menu :) \n
-//             CTRL_C - escapes file and automatically saves list`);
-//     }
-//   });
-//   term.on("key", function (name, matches, data) {
-//     if (name === "i") {
-//       term.grabInput(false);
-//       term.clear().green("Insert mode activated\n");
-//       let newTodo = readlineSync.question("Add a new todo item: ");
-//       if (newTodo != "") filteredList.push("[] " + newTodo);
-//       term.grabInput(true);
-//     }
-//   });
-
-//   term.on("key", function (name, matches, data) {
-//     if (name === "d") {
-//       term.grabInput(false);
-//       term
-//         .clear()
-//         .yellow("Select an element to delete starting with index 0\n");
-//       filteredList.forEach((item, index) => term(`${index} ${item} \n`));
-//       let selectToDelete = readlineSync.question("Select an item to delete: ");
-//       filteredList.splice(selectToDelete, 1);
-//       term.grabInput(true);
-//     }
-//   });
-
-//   term.on("key", function (name, matches, data) {
-//     if (name === "a") append();
-//   });
-//   term.on("key", function (name, matches, data) {
-//     if (name === "ESCAPE") menu();
-//   });
-//   term.on("key", function (name, matches, data) {
-//     if (name === "m") menu();
-//   });
-//   menu();
-// }
-
-// choose();
 choose();
