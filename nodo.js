@@ -53,7 +53,11 @@ if (program.newList) {
 }
 
 
-// insert a header above index 
+/**
+ * Insert a markdown header by appending '#' to string
+ * @param  {number} index - where to insert header
+ * @param  {number} headerSize - how many '#' to append for header
+ */
 const insertHeader = (index, headerSize) => {
   headerSize = Number(headerSize);
   if (isNaN(index) || headerSize < 0)
@@ -67,7 +71,11 @@ const insertHeader = (index, headerSize) => {
   filteredList.splice(index, 0, item);
   term.grabInput(true);
 }
-
+/**
+ * Display menu and processes command input
+ * @param  {array} command - array of strings processed for commands
+ * @param  {boolean} helpMenu=true - display help menu flag
+ */
 const displayMenu = (command, helpMenu = true) => {
   let err = "";
   displayHeader(helpMenu);
@@ -100,12 +108,18 @@ const displayMenu = (command, helpMenu = true) => {
     choose(err);
   });
 }
-
+/**
+ * Delete an item at specific index
+ * @param  {number} index - index of item to delete
+ */
 const deleteItem = (index) => {
   if (isNaN(index)) return "Error occured in deleting item";
   filteredList.splice(index, 1);
 }
-
+/**
+ * @param  {array} list - array list of todo items
+ * @param  {boolean} proceed=true - determines if the program should exit after save
+ */
 const saveList = (list,
   proceed = true) => {
   let formatedString = list.join("\n");
@@ -124,13 +138,21 @@ const saveList = (list,
     process.exit();
 }
 
-//selects item in list 
+
+/**
+ * Toggles check mark on item 
+ * @param  {number} index - index of item to toggle mark
+ */
 const selectItem = (index) => {
   if (filteredList[index].includes("[ ]"))
     filteredList[index] = filteredList[index].replace("[ ]", "[x]");
   else filteredList[index] = filteredList[index].replace("[x]", "[ ]");
 }
-// append an item below list
+/**
+ * Append a new item below index value,
+ * also tab the appending item
+ *  @param  {number} index - index of where to insert below
+ */
 const append = (index) => {
   term.grabInput(false);
   let userInput = readlineSync.question("New todo item > ");
@@ -140,7 +162,10 @@ const append = (index) => {
   term.grabInput(true);
 }
 
-// insert an item below list
+/**
+ * Insert an item below. Insertion is untabbed.
+ * @param  {number} index - index of item to insert to
+ */
 const insert = (index) => {
   term.grabInput(false);
   let userInput = readlineSync.question("New todo item > ");
@@ -149,7 +174,11 @@ const insert = (index) => {
   filteredList.splice(index + 1, 0, userInput);
   term.grabInput(true);
 }
-
+/**
+ * Display application header which is specified in the 
+ * program arguments using the -h flag.
+ * @param  {boolean} helpMenu=true - toggle to show help menu, set by using --no-help flag.
+ */
 const displayHeader = (helpMenu = true) => {
   term.clear();
   term.color256(program.headerColor || Math.random() * 255 + 1, header);
@@ -159,7 +188,10 @@ const displayHeader = (helpMenu = true) => {
     );
   }
 }
-
+/**
+ * Processes commands and execute displayMenu on functions that require menu.
+ *  @param  {string} msg="" - used to display error messages.  
+ */
 const choose = (msg = "") => {
   displayHeader(hideHelp);
   term(`${msg}\n`);

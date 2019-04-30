@@ -8,3 +8,4 @@
 - [x] Github formatted list support
 - [ ] Implement updated help menu
     - [ ] Test updated help menu
+- [x] Add JSDoc to functions
