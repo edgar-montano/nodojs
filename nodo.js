@@ -52,16 +52,6 @@ if (program.newList) {
   term.grabInput(true);
 }
 
-// function menuStable() {
-//   displayHeader();
-//   term.singleColumnMenu(filteredList, (err, response) => {
-//     let index = response.selectedIndex;
-//     if (filteredList[index].includes("[]"))
-//       filteredList[index] = filteredList[index].replace("[]", "[x]");
-//     else filteredList[index] = filteredList[index].replace("[x]", "[]");
-//     choose();
-//   });
-// }
 
 // insert a header above index 
 const insertHeader = (index, headerSize) => {
