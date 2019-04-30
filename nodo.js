@@ -63,12 +63,33 @@ function menuStable() {
   });
 }
 
+// insert a header above index 
+const insertHeader = (index, headerSize) => {
+  headerSize = Number(headerSize);
+  if (isNaN(index) || headerSize < 0)
+    choose("Could not propery insert header");
+
+  term.grabInput(false);
+  let userInput = readlineSync.question("New header item > ");
+  if (userInput == '') choose("Input not inserted");
+  let headerAmount = "#".repeat(headerSize);
+  let item = headerAmount + " " + userInput;
+  filteredList.splice(index, 0, item);
+  term.grabInput(true);
+}
+
 const displayMenu = (command, helpMenu = true) => {
   let err = "";
   displayHeader(helpMenu);
   term.singleColumnMenu(filteredList, (err, response) => {
     let index = response.selectedIndex;
-    switch (command) {
+    switch (command[0]) {
+      case 'header':
+      case 'h':
+        insertHeader(index, command[1]);
+        break;
+      case 'i':
+      case 'insert':
       case 'append':
       case 'a':
         append(index);
@@ -117,6 +138,7 @@ const selectItem = (index) => {
 const append = (index) => {
   term.grabInput(false);
   let userInput = readlineSync.question("New todo item > ");
+  if (userInput === '') choose(`Input ${userInput} invalid`);
   userInput = "    * [] " + userInput;
   filteredList.splice(index + 1, 0, userInput);
   term.grabInput(true);
@@ -133,14 +155,17 @@ const displayHeader = (helpMenu = true) => {
   }
 }
 
-function choose(msg = "") {
+const choose = (msg = "") => {
   displayHeader(hideHelp);
   term(`${msg}\n`);
   filteredList.forEach(item => term(`${item}\n`));
   term.grabInput(false);
   let userInput = readlineSync.question("\nPlease enter a command > ");
+  userInput = userInput.split(" ")
   term.grabInput(true);
-  switch (userInput) {
+  switch (userInput[0]) {
+    case 'header':
+    case 'h':
     case '':
     case 'm':
     case 'append':
@@ -149,13 +174,17 @@ function choose(msg = "") {
     case 'i':
       displayMenu(userInput, hideHelp);
       break;
+    case 'exit':
+      saveList(filteredList);
+      term.green("Program has successfully exited \n ");
+      process.exit();
+      break;
     case 'save':
     case 's':
       saveList(filteredList);
       break;
     default:
       choose(`Command "${userInput}" not found`)
-
   }
 }
 
