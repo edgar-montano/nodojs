@@ -12,16 +12,16 @@ program
     "-c, --header-color <integer>",
     "pass an integer between 1,256 for header color "
   )
-  .option("-e, --experimental", "enables experimental mode")
+  .option("--no-help", "hides help menu from being displayed")
   .option("-n, --new-list <file>", "make a new todo list file")
   .option("-a, --add [items...]", "add a new item to list")
   .parse(process.argv);
 
 // determines header and header color from params or pass default value
 const header = fs.readFileSync(program.header || "headers/todo_header", "utf8");
-term.color256(program.headerColor || Math.random() * 255 + 1, header);
+//term.color256(program.headerColor || Math.random() * 255 + 1, header);
 
-let hideHelp = false;
+let hideHelp = program.help;
 
 // ensure that a file is specified
 const filePath = program.file || program.args[0] || program.newList;
@@ -74,84 +74,113 @@ function menuStable() {
   });
 }
 
-function deleteItem() {
-  displayHeader();
+const displayMenu = (command, helpMenu = true) => {
+  let err = "";
+  displayHeader(helpMenu);
   term.singleColumnMenu(filteredList, (err, response) => {
     let index = response.selectedIndex;
-    filteredList.splice(index, 1);
-    chooseStable();
+    switch (command) {
+      case 'append':
+      case 'a':
+        append(index);
+        break;
+      case '':
+      case 'm':
+        selectItem(index);
+        break;
+      case 'd':
+        err = deleteItem(index);
+        break;
+      default:
+        chooseStable(`Command "${command}" not found`);
+        break;
+    }
+    chooseStable(err);
   });
 }
 
-function append() {
-  displayHeader();
-
-  term.grabInput(false);
-  let newTodo = readlineSync.question("Append a new todo item: ");
-  filteredList.forEach((item, index) => term(`${index} ${item} \n`));
-  let appendIndex = Number(
-    readlineSync.question(
-      `Select where you want your item appended below (0-${filteredList.length -
-        1}): `
-    )
-  );
-  if (!isNaN(appendIndex) && 0 <= appendIndex < filteredList.length - 1) {
-    newTodo = "    [] " + newTodo;
-    filteredList.splice(appendIndex + 1, 0, newTodo);
-  }
-  term.grabInput(true);
-  menu();
+const deleteItem = (index) => {
+  if (isNaN(index)) return "Error occured in deleting item";
+  filteredList.splice(index, 1);
 }
 
-function displayHeader() {
+const saveList = () => {
+  let formatedString = filteredList.join("\n");
+  fs.writeFileSync(filePath, formatedString, function (err) {
+    if (err) {
+      term
+        .clear()
+        .bold()
+        .red(err);
+      return -1;
+    }
+  });
+  term.clear().bold.green("File successfully saved\n");
+  process.exit();
+
+}
+
+//selects item in list 
+const selectItem = (index) => {
+  if (filteredList[index].includes("[]"))
+    filteredList[index] = filteredList[index].replace("[]", "[X]");
+  else filteredList[index] = filteredList[index].replace("[X]", "[]");
+}
+// append an item below list
+const append = (index) => {
+  term.grabInput(false);
+  let userInput = readlineSync.question("New todo item > ");
+  userInput = "    * [] " + userInput;
+  filteredList.splice(index + 1, 0, userInput);
+  term.grabInput(true);
+
+}
+
+const displayHeader = (helpMenu = true) => {
   term.clear();
   term.color256(program.headerColor || Math.random() * 255 + 1, header);
-  term.green(
-    "\nCommands available: (m)enu, (a)ppend below, (i)nsert mode, (d)elete mode, (h)elp, or CTRL_C to escape\n"
-  );
+  if (helpMenu) {
+    term.green(
+      "\nCommands available: (m)enu, (a)ppend below, (i)nsert mode, (d)elete mode, (h)elp, or CTRL_C to escape\n"
+    );
+  }
+
 }
 
 function chooseStable(msg = "") {
   //while (true) {
-  displayHeader();
+  displayHeader(hideHelp);
   term(`${msg}\n`);
   filteredList.forEach(item => term(`${item}\n`));
   term.grabInput(false);
   let userInput = readlineSync.question("\nPlease enter a command > ");
   term.grabInput(true);
   switch (userInput) {
-    case "":
-    case "s":
-    case "m":
-      term("entering menu");
-      menuStable();
+    case '':
+    case 'm':
+    case 'append':
+    case 'a':
+    case 'd':
+    case 'i':
+    case 'save':
+    case 's':
+      displayMenu(userInput, hideHelp);
       break;
-    case "a":
-    //break;
-    case "d":
-      deleteItem();
-      break;
-    //break;
-    case "h":
-    case "save":
-      term.green("File saved");
-      process.exit();
-      break;
-    //break;
     default:
-      chooseStable(`Command "${userInput}" not found\n`);
-      break;
+      chooseStable(`Command "${userInput}" not found`)
+
   }
-  //}
+  //displayMenu(userInput, hideHelp);
+
 }
 
 function choose() {
   displayHeader();
   term.grabInput();
-  term.on("key", function(name, matches, data) {
+  term.on("key", function (name, matches, data) {
     if (name === "CTRL_C") {
       let formatedString = filteredList.join("\n");
-      fs.writeFileSync(filePath, formatedString, function(err) {
+      fs.writeFileSync(filePath, formatedString, function (err) {
         if (err) {
           term
             .clear()
@@ -164,7 +193,7 @@ function choose() {
       process.exit();
     }
   });
-  term.on("key", function(name, matches, data) {
+  term.on("key", function (name, matches, data) {
     if (name === "h") {
       term.clear().green(`Note press m or escape for a refresh\n
             Available options are: \n
@@ -174,7 +203,7 @@ function choose() {
             CTRL_C - escapes file and automatically saves list`);
     }
   });
-  term.on("key", function(name, matches, data) {
+  term.on("key", function (name, matches, data) {
     if (name === "i") {
       term.grabInput(false);
       term.clear().green("Insert mode activated\n");
@@ -184,7 +213,7 @@ function choose() {
     }
   });
 
-  term.on("key", function(name, matches, data) {
+  term.on("key", function (name, matches, data) {
     if (name === "d") {
       term.grabInput(false);
       term
@@ -197,13 +226,13 @@ function choose() {
     }
   });
 
-  term.on("key", function(name, matches, data) {
+  term.on("key", function (name, matches, data) {
     if (name === "a") append();
   });
-  term.on("key", function(name, matches, data) {
+  term.on("key", function (name, matches, data) {
     if (name === "ESCAPE") menu();
   });
-  term.on("key", function(name, matches, data) {
+  term.on("key", function (name, matches, data) {
     if (name === "m") menu();
   });
   menu();
