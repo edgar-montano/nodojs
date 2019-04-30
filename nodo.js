@@ -133,6 +133,10 @@ function chooseStable(msg = "") {
       break;
     //break;
     case "h":
+    case "save":
+      term.green("File saved");
+      process.exit();
+      break;
     //break;
     default:
       chooseStable(`Command "${userInput}" not found\n`);
