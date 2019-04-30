@@ -48,20 +48,20 @@ if (program.newList) {
   term.grabInput(false);
   term.clear().green("Insert mode activated\n");
   let newTodo = readlineSync.question("Add a new todo item: ");
-  if (newTodo != "") filteredList.push("[] " + newTodo);
+  if (newTodo != "") filteredList.push("- [ ] " + newTodo);
   term.grabInput(true);
 }
 
-function menuStable() {
-  displayHeader();
-  term.singleColumnMenu(filteredList, (err, response) => {
-    let index = response.selectedIndex;
-    if (filteredList[index].includes("[]"))
-      filteredList[index] = filteredList[index].replace("[]", "[x]");
-    else filteredList[index] = filteredList[index].replace("[x]", "[]");
-    choose();
-  });
-}
+// function menuStable() {
+//   displayHeader();
+//   term.singleColumnMenu(filteredList, (err, response) => {
+//     let index = response.selectedIndex;
+//     if (filteredList[index].includes("[]"))
+//       filteredList[index] = filteredList[index].replace("[]", "[x]");
+//     else filteredList[index] = filteredList[index].replace("[x]", "[]");
+//     choose();
+//   });
+// }
 
 // insert a header above index 
 const insertHeader = (index, headerSize) => {
@@ -90,6 +90,8 @@ const displayMenu = (command, helpMenu = true) => {
         break;
       case 'i':
       case 'insert':
+        insert(index);
+        break;
       case 'append':
       case 'a':
         append(index);
@@ -114,7 +116,8 @@ const deleteItem = (index) => {
   filteredList.splice(index, 1);
 }
 
-const saveList = (list) => {
+const saveList = (list,
+  proceed = true) => {
   let formatedString = list.join("\n");
   fs.writeFileSync(filePath, formatedString, function (err) {
     if (err) {
@@ -125,24 +128,36 @@ const saveList = (list) => {
       return -1;
     }
   });
-  choose("File has been written successfully \n");
+  if (proceed)
+    choose("File has been written successfully \n");
+  else
+    process.exit();
 }
 
 //selects item in list 
 const selectItem = (index) => {
-  if (filteredList[index].includes("[]"))
-    filteredList[index] = filteredList[index].replace("[]", "[X]");
-  else filteredList[index] = filteredList[index].replace("[X]", "[]");
+  if (filteredList[index].includes("[ ]"))
+    filteredList[index] = filteredList[index].replace("[ ]", "[x]");
+  else filteredList[index] = filteredList[index].replace("[x]", "[ ]");
 }
 // append an item below list
 const append = (index) => {
   term.grabInput(false);
   let userInput = readlineSync.question("New todo item > ");
   if (userInput === '') choose(`Input ${userInput} invalid`);
-  userInput = "    * [] " + userInput;
+  userInput = "    - [ ] " + userInput;
   filteredList.splice(index + 1, 0, userInput);
   term.grabInput(true);
+}
 
+// insert an item below list
+const insert = (index) => {
+  term.grabInput(false);
+  let userInput = readlineSync.question("New todo item > ");
+  if (userInput === '') choose(`Input ${userInput} invalid`);
+  userInput = "- [ ] " + userInput;
+  filteredList.splice(index + 1, 0, userInput);
+  term.grabInput(true);
 }
 
 const displayHeader = (helpMenu = true) => {
@@ -174,10 +189,12 @@ const choose = (msg = "") => {
     case 'i':
       displayMenu(userInput, hideHelp);
       break;
+    case 'sq':
+      saveList(filteredList, false);
+    case 'q':
+    case 'quit':
     case 'exit':
-      saveList(filteredList);
-      term.green("Program has successfully exited \n ");
-      process.exit();
+      saveList(filteredList, false);
       break;
     case 'save':
     case 's':
